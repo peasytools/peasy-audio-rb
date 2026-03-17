@@ -3,11 +3,30 @@
 [![Gem Version](https://badge.fury.io/rb/peasy-audio.svg)](https://rubygems.org/gems/peasy-audio)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-Ruby client for the [PeasyAudio](https://peasyaudio.com) API — convert, trim, merge, and normalize audio files. Zero dependencies beyond Ruby stdlib (Net::HTTP, JSON, URI).
+Ruby client for the [PeasyAudio](https://peasyaudio.com) API — analyze BPM, calculate bitrate, and convert audio formats. Zero dependencies beyond Ruby stdlib (Net::HTTP, JSON, URI).
 
-Built from [PeasyAudio](https://peasyaudio.com), a free online audio toolkit with tools for every audio workflow — convert between MP3, WAV, OGG, FLAC, and AAC formats, trim clips, merge tracks, and normalize volume levels.
+Built from [PeasyAudio](https://peasyaudio.com), a comprehensive audio toolkit offering free online tools for analyzing tempo, calculating file sizes, comparing audio formats, and converting between MP3, WAV, FLAC, OGG, and AAC. The site includes in-depth guides on lossless vs. lossy audio encoding, format comparison charts, and a glossary covering concepts from bitrate and sample rate to audio codecs and clipping.
 
-> **Try the interactive tools at [peasyaudio.com](https://peasyaudio.com)** — [Audio Tools](https://peasyaudio.com/), [Audio Glossary](https://peasyaudio.com/glossary/), [Audio Guides](https://peasyaudio.com/guides/)
+> **Try the interactive tools at [peasyaudio.com](https://peasyaudio.com)** — [Audio BPM Analyzer](https://peasyaudio.com/audio/audio-bpm/), [Audio Frequency Calculator](https://peasyaudio.com/audio/audio-freq/), [Audio File Size Calculator](https://peasyaudio.com/audio/audio-filesize/), and more.
+
+<p align="center">
+  <img src="demo.gif" alt="peasy-audio demo — audio BPM analysis and format conversion tools in Ruby terminal" width="800">
+</p>
+
+## Table of Contents
+
+- [Install](#install)
+- [Quick Start](#quick-start)
+- [What You Can Do](#what-you-can-do)
+  - [Audio Analysis Tools](#audio-analysis-tools)
+  - [Browse Reference Content](#browse-reference-content)
+  - [Search and Discovery](#search-and-discovery)
+- [API Client](#api-client)
+  - [Available Methods](#available-methods)
+- [Learn More About Audio Tools](#learn-more-about-audio-tools)
+- [Also Available](#also-available)
+- [Peasy Developer Tools](#peasy-developer-tools)
+- [License](#license)
 
 ## Install
 
@@ -34,6 +53,103 @@ tools["results"].each do |tool|
   puts "#{tool["name"]}: #{tool["description"]}"
 end
 ```
+
+## What You Can Do
+
+### Audio Analysis Tools
+
+Digital audio is represented as a series of samples captured at a fixed rate — CD-quality audio uses 44,100 samples per second (44.1 kHz) with 16-bit depth, producing 1,411 kbps of uncompressed data. Lossy codecs like MP3 and AAC reduce this dramatically (128-320 kbps) by discarding inaudible frequencies using psychoacoustic models, while lossless codecs like FLAC compress without any data loss. PeasyAudio provides calculators and analysis tools for understanding these encoding parameters.
+
+| Tool | Slug | Description |
+|------|------|-------------|
+| BPM Analyzer | `audio-bpm` | Calculate beats per minute for tempo analysis |
+| Frequency Calculator | `audio-freq` | Compute audio frequency values and wavelengths |
+| File Size Calculator | `audio-filesize` | Estimate file sizes for different bitrate and duration combinations |
+
+The relationship between sample rate, bit depth, and channels determines the raw data rate of uncompressed audio. CD-quality stereo (44.1 kHz, 16-bit, 2 channels) produces 1,411.2 kbps, while studio-quality recordings at 96 kHz/24-bit stereo generate 4,608 kbps — over 34 MB per minute. Lossy codecs like AAC at 256 kbps achieve roughly 18:1 compression while maintaining transparency (indistinguishable from the original in controlled listening tests).
+
+```ruby
+require "peasy_audio"
+
+client = PeasyAudio::Client.new
+
+# Get the BPM analyzer tool for tempo detection
+tool = client.get_tool("audio-bpm")
+puts "Tool: #{tool["name"]}"              # Audio BPM analyzer name
+puts "Description: #{tool["description"]}" # How BPM detection works
+
+# List all available audio tools with pagination
+tools = client.list_tools(page: 1, limit: 20)
+puts "Total audio tools available: #{tools["count"]}"
+```
+
+Learn more: [Audio BPM Analyzer](https://peasyaudio.com/audio/audio-bpm/) · [Audio Format Comparison](https://peasyaudio.com/guides/audio-format-comparison/) · [Convert Between Audio Formats](https://peasyaudio.com/guides/convert-between-audio-formats/)
+
+### Browse Reference Content
+
+PeasyAudio includes a comprehensive glossary of audio engineering terminology and practical guides for common workflows. The glossary covers foundational concepts like bitrate (the number of bits processed per second, determining audio quality and file size), sample rate (how many times per second the audio signal is measured), WAV (Microsoft's uncompressed audio container), and FLAC (Free Lossless Audio Codec, the open-source standard for archival-quality audio).
+
+| Term | Description |
+|------|-------------|
+| [Bitrate](https://peasyaudio.com/glossary/bitrate/) | Bits per second — determines audio quality and file size |
+| [Sample Rate](https://peasyaudio.com/glossary/sample-rate/) | Samples per second — 44.1 kHz (CD), 48 kHz (video), 96 kHz (hi-res) |
+| [WAV](https://peasyaudio.com/glossary/wav/) | Waveform Audio File Format — uncompressed PCM container |
+| [FLAC](https://peasyaudio.com/glossary/flac/) | Free Lossless Audio Codec — open-source lossless compression |
+
+The choice between lossy and lossless encoding involves a fundamental trade-off between file size and audio fidelity. Lossy codecs like MP3 and AAC use psychoacoustic models to discard sounds that fall below the human hearing threshold — frequencies masked by louder nearby tones, or ultra-high frequencies above 16 kHz that most adults cannot perceive. Lossless codecs like FLAC and ALAC preserve every sample exactly, achieving typical compression ratios of 50-60% while guaranteeing bit-perfect reconstruction of the original recording.
+
+```ruby
+require "peasy_audio"
+
+client = PeasyAudio::Client.new
+
+# Browse the audio glossary for encoding and format terminology
+glossary = client.list_glossary(search: "bitrate")
+glossary["results"].each do |term|
+  puts "#{term["term"]}: #{term["definition"]}"
+end
+
+# Read a guide comparing lossless vs lossy audio formats
+guide = client.get_guide("audio-format-comparison")
+puts "Guide: #{guide["title"]} (Level: #{guide["audience_level"]})"
+```
+
+Learn more: [Audio Glossary](https://peasyaudio.com/glossary/) · [Audio Format Comparison](https://peasyaudio.com/guides/audio-format-comparison/) · [Convert Between Audio Formats](https://peasyaudio.com/guides/convert-between-audio-formats/)
+
+### Search and Discovery
+
+The API supports full-text search across all content types — tools, glossary terms, guides, use cases, and format documentation. Search results are grouped by content type, making it easy to find the right tool or reference for any audio workflow. Format conversion data covers the full matrix of source-to-target transformations, including quality trade-offs — converting from a lossy format (MP3) to another lossy format (AAC) involves a generation loss as the second encoder cannot recover information discarded by the first.
+
+```ruby
+require "peasy_audio"
+
+client = PeasyAudio::Client.new
+
+# Search across all audio content — tools, glossary, guides, and formats
+results = client.search("convert flac")
+puts "Found #{results["results"]["tools"].length} tools"
+puts "Found #{results["results"]["glossary"].length} glossary terms"
+puts "Found #{results["results"]["guides"].length} guides"
+
+# Discover format conversion paths — what can WAV convert to?
+conversions = client.list_conversions(source: "wav")
+conversions["results"].each do |c|
+  puts "#{c["source_format"]} -> #{c["target_format"]}"
+end
+
+# Get detailed information about a specific audio format
+format = client.get_format("wav")
+puts "#{format["name"]} (#{format["extension"]}): #{format["mime_type"]}"
+```
+
+| Format | Type | Typical Bitrate | Primary Use |
+|--------|------|----------------|-------------|
+| MP3 | Lossy | 128-320 kbps | Universal playback, streaming |
+| AAC | Lossy | 128-256 kbps | Apple ecosystem, streaming |
+| FLAC | Lossless | 800-1400 kbps | Archival, audiophile playback |
+| WAV | Uncompressed | 1411 kbps (CD) | Recording, editing, mastering |
+
+Learn more: [REST API Docs](https://peasyaudio.com/developers/) · [All Audio Tools](https://peasyaudio.com/) · [All Formats](https://peasyaudio.com/formats/)
 
 ## API Client
 
@@ -101,12 +217,12 @@ All list methods accept keyword arguments: `page:`, `limit:`, `category:`, `sear
 Full API documentation at [peasyaudio.com/developers/](https://peasyaudio.com/developers/).
 OpenAPI 3.1.0 spec: [peasyaudio.com/api/openapi.json](https://peasyaudio.com/api/openapi.json).
 
-## Learn More
+## Learn More About Audio Tools
 
-- **Tools**: [Audio BPM Calculator](https://peasyaudio.com/audio/audio-bpm/) · [Audio Frequency Calculator](https://peasyaudio.com/audio/audio-freq/) · [Audio Delay Calculator](https://peasyaudio.com/audio/audio-delay/) · [All Tools](https://peasyaudio.com/)
-- **Guides**: [Audio Format Comparison](https://peasyaudio.com/guides/audio-format-comparison/) · [Lossless vs Lossy Audio](https://peasyaudio.com/guides/lossless-vs-lossy-audio-guide/) · [All Guides](https://peasyaudio.com/guides/)
-- **Glossary**: [Bitrate](https://peasyaudio.com/glossary/bitrate/) · [Audio Codec](https://peasyaudio.com/glossary/audio-codec/) · [Clipping](https://peasyaudio.com/glossary/clipping/) · [All Terms](https://peasyaudio.com/glossary/)
-- **Formats**: [MP3](https://peasyaudio.com/formats/mp3/) · [FLAC](https://peasyaudio.com/formats/flac/) · [All Formats](https://peasyaudio.com/formats/)
+- **Tools**: [Audio BPM Analyzer](https://peasyaudio.com/audio/audio-bpm/) · [Audio Frequency Calculator](https://peasyaudio.com/audio/audio-freq/) · [Audio File Size Calculator](https://peasyaudio.com/audio/audio-filesize/) · [All Tools](https://peasyaudio.com/)
+- **Guides**: [Audio Format Comparison](https://peasyaudio.com/guides/audio-format-comparison/) · [Convert Between Audio Formats](https://peasyaudio.com/guides/convert-between-audio-formats/) · [All Guides](https://peasyaudio.com/guides/)
+- **Glossary**: [Bitrate](https://peasyaudio.com/glossary/bitrate/) · [Sample Rate](https://peasyaudio.com/glossary/sample-rate/) · [WAV](https://peasyaudio.com/glossary/wav/) · [FLAC](https://peasyaudio.com/glossary/flac/) · [All Terms](https://peasyaudio.com/glossary/)
+- **Formats**: [All Formats](https://peasyaudio.com/formats/)
 - **API**: [REST API Docs](https://peasyaudio.com/developers/) · [OpenAPI Spec](https://peasyaudio.com/api/openapi.json)
 
 ## Also Available
