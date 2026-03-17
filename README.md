@@ -2,6 +2,7 @@
 
 [![Gem Version](https://badge.fury.io/rb/peasy-audio.svg)](https://rubygems.org/gems/peasy-audio)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![GitHub stars](https://agentgif.com/badge/github/peasytools/peasy-audio-rb/stars.svg)](https://github.com/peasytools/peasy-audio-rb)
 
 Ruby client for the [PeasyAudio](https://peasyaudio.com) API — analyze BPM, calculate bitrate, and convert audio formats. Zero dependencies beyond Ruby stdlib (Net::HTTP, JSON, URI).
 
